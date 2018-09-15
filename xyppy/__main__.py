@@ -14,6 +14,7 @@ import xyppy.blorb as blorb
 import xyppy.ops as ops
 import xyppy.term as term
 import xyppy.six.moves.urllib as urllib
+import os
 
 def main():
 
@@ -36,6 +37,14 @@ def main():
     args = parser.parse_args()
 
     url = args.STORY_FILE_OR_URL
+    #This block of logic will create a save folder if needed, and switch into it.
+    #This allows us to localize saves to where the game file is at.
+    dir_of_game = "/".join(url.split("/")[:-1])
+    os.chdir(dir_of_game)
+    if not os.path.exists("saves"):
+        os.makedirs("saves")
+    os.chdir("saves")
+    
     if any(map(url.startswith, ['http://', 'https://', 'ftp://'])):
         f = urllib.request.urlopen(url)
         mem = f.read()

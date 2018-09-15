@@ -151,7 +151,6 @@ class Env:
     def __init__(self, mem, options):
         self.orig_mem = mem
         self.mem = array('B', six.iterbytes(mem))
-
         self.options = options
 
         self.hdr = Header(self)

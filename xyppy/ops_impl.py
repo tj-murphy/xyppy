@@ -15,6 +15,9 @@ import xyppy.quetzal as quetzal
 import xyppy.six as six
 from xyppy.six.moves import range
 
+import os
+
+
 def get_var(env, var_num, pop_stack=True):
     # if DBG:
     #     warn('    get_var(', get_var_name(var_num), ', pop_stack =', pop_stack, ')')
@@ -700,7 +703,6 @@ def check_arg_count(env, opinfo):
         warn('    branch_offset', opinfo.branch_offset)
         warn('    branch_on', opinfo.branch_on)
         warn('    result', result)
-
 def handle_read(env, text_buffer, parse_buffer, time=0, routine=0):
 
     if time != 0 or routine != 0:
@@ -715,10 +717,9 @@ def handle_read(env, text_buffer, parse_buffer, time=0, routine=0):
     if env.hdr.version < 5 or parse_buffer != 0:
         handle_parse(env, text_buffer, parse_buffer)
 
-    # return ord('\r') as term char for now... 
-    # TODO: the right thing 
+    # return ord('\r') as term char for now...
+    # TODO: the right thing
     return ord('\r')
-
 def aread(env, opinfo):
     text_buffer = opinfo.operands[0]
     if len(opinfo.operands) > 1:
@@ -732,7 +733,6 @@ def aread(env, opinfo):
 
     end_char = handle_read(env, text_buffer, parse_buffer, time, routine)
     set_var(env, opinfo.store_var, end_char)
-
 def sread(env, opinfo):
     text_buffer = opinfo.operands[0]
     if len(opinfo.operands) > 1:
@@ -1007,7 +1007,13 @@ def set_window(env, opinfo):
         err('set_window: requested unknown window:', env.current_window)
 
 def restore_z3(env, opinfo):
-    filename = env.screen.get_line_of_input('input save filename: ')
+    env.screen.write("FILES AVAILABLE TO LOAD:\n----------------------\n")
+    availableFiles = os.listdir()
+    for file in availableFiles:
+        env.screen.write(file + "\n")
+    env.screen.write("Choose one of those files to load: ")
+    filename = env.screen.get_line_of_input()
+
     loaded = quetzal.load_to_env(env, filename)
     if loaded:
         # move past save inst's branch byte(s)
@@ -1022,7 +1028,12 @@ def restore(env, opinfo):
         set_var(env, opinfo.store_var, 0)
         return
 
-    filename = env.screen.get_line_of_input('input save filename: ')
+    env.screen.write("FILES AVAILABLE TO LOAD:\n----------------------\n")
+    availableFiles = os.listdir()
+    for file in availableFiles:
+        env.screen.write(file + "\n")
+    env.screen.write("Choose one of those files to load: ")
+    filename = env.screen.get_line_of_input()
     loaded = quetzal.load_to_env(env, filename)
     if loaded:
         # set and move past save inst's svar byte
