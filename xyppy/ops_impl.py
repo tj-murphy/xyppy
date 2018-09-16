@@ -1006,15 +1006,18 @@ def set_window(env, opinfo):
     if env.current_window not in [0,1]:
         err('set_window: requested unknown window:', env.current_window)
 
-def restore_z3(env, opinfo):
+#Called by restore and restore_z3, to handle modernized file structuring
+def restore_chooser(env):
     env.screen.write("FILES AVAILABLE TO LOAD:\n----------------------\n")
     availableFiles = os.listdir()
-    for file in availableFiles:
-        env.screen.write(file + "\n")
+    for f in availableFiles:
+        env.screen.write(f + "\n")
     env.screen.write("Choose one of those files to load: ")
     filename = env.screen.get_line_of_input()
-
-    loaded = quetzal.load_to_env(env, filename)
+    return quetzal.load_to_env(env, filename)
+    
+def restore_z3(env, opinfo):
+    loaded = restore_chooser(env)
     if loaded:
         # move past save inst's branch byte(s)
         # (which quetzal gives as the PC)
@@ -1027,14 +1030,7 @@ def restore(env, opinfo):
             warn('restore: found operands (not yet impld): '+str(opinfo.operands))
         set_var(env, opinfo.store_var, 0)
         return
-
-    env.screen.write("FILES AVAILABLE TO LOAD:\n----------------------\n")
-    availableFiles = os.listdir()
-    for file in availableFiles:
-        env.screen.write(file + "\n")
-    env.screen.write("Choose one of those files to load: ")
-    filename = env.screen.get_line_of_input()
-    loaded = quetzal.load_to_env(env, filename)
+    loaded = restore_chooser(env)
     if loaded:
         # set and move past save inst's svar byte
         # (which quetzal gives as the PC)
